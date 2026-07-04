@@ -1,0 +1,88 @@
+body{
+    background:#eef3f8;
+}
+
+.main{
+    background:#eef3f8;
+}
+
+.top{
+    margin-bottom:30px;
+}
+
+.top h1{
+    color:#128c7e;
+    font-size:42px;
+    margin-bottom:0;
+}
+
+.top p{
+    color:gray;
+    margin-top:-8px;
+}
+
+.card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+
+}
+
+.price{
+
+    font-size:60px;
+
+    font-weight:700;
+
+    color:#009688;
+
+    margin-top:20px;
+
+    margin-bottom:20px;
+
+}
+
+.stButton>button{
+
+    background:#009688;
+
+    color:white;
+
+    font-size:20px;
+
+    border-radius:12px;
+
+    height:55px;
+
+    border:none;
+
+}
+
+.stButton>button:hover{
+
+    background:#00796b;
+
+}
+
+div[data-baseweb="select"]{
+
+    border-radius:12px;
+
+}
+
+.stSlider{
+
+    padding-top:10px;
+
+}
+
+.stRadio>div{
+
+    gap:10px;
+
+}
