@@ -156,4 +156,15 @@ plt.title("Feature Coefficients")
 
 plt.show()
 
-print("\nProject Finished Successfully!")
+# ============================
+# SAVE MODEL
+# ============================
+
+import joblib
+
+MODEL_PATH = PROJECT_ROOT / "model" / "linear_model.pkl"
+MODEL_PATH.parent.mkdir(exist_ok=True)
+joblib.dump(model, MODEL_PATH)
+
+print(f"\nModel saved to: {MODEL_PATH}")
+print("Project Finished Successfully!")

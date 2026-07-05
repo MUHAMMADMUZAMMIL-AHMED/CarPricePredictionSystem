@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATASET = BASE_DIR / "dataset" / "car_dataset.csv"
 
-MODEL = BASE_DIR / "model" / "car_price_model.pkl"
+MODEL = BASE_DIR / "model" / "decision_tree.pkl"
 
 MODEL.parent.mkdir(exist_ok=True)
 

@@ -6,7 +6,6 @@ import streamlit as st
 
 BASE_DIR = Path(__file__).resolve().parent
 CSS_PATH = BASE_DIR / "style.css"
-MODEL_PATH = BASE_DIR / "model" / "car_price_model.pkl"
 
 st.set_page_config(
     page_title="AutoVal",
@@ -14,122 +13,175 @@ st.set_page_config(
     layout="wide"
 )
 
+# -------------------------------------------------
 # Load CSS
+# -------------------------------------------------
+
 with CSS_PATH.open(encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Load Model
-model = joblib.load(MODEL_PATH)
+# -------------------------------------------------
+# Select Algorithm
+# -------------------------------------------------
 
-# ----------------------------
+algorithm = st.sidebar.selectbox(
+    "🤖 Select Machine Learning Algorithm",
+    (
+        "Random Forest",
+        "Decision Tree",
+        "Linear Regression"
+    )
+)
+
+# -------------------------------------------------
+# Load Selected Model
+# -------------------------------------------------
+
+MODEL_FILES = {
+    "Random Forest": BASE_DIR / "model" / "car_price_model.pkl",
+    "Decision Tree": BASE_DIR / "model" / "decision_tree.pkl",
+    "Linear Regression": BASE_DIR / "model" / "linear_model.pkl"
+}
+
+selected_model_path = MODEL_FILES[algorithm]
+
+if not selected_model_path.exists():
+    st.sidebar.error(f"Model file not found: {selected_model_path.name}")
+    st.stop()
+
+model = joblib.load(selected_model_path)
+
+st.sidebar.success(f"Currently Running:\n\n{algorithm}")
+st.sidebar.caption(f"Loaded model: {selected_model_path.name}")
+
+# -------------------------------------------------
 # Dictionaries
-# ----------------------------
+# -------------------------------------------------
 
-car_names={
-"Alto":0,
-"City":1,
-"Civic":2,
-"Corolla":3,
-"Cultus":4,
-"Fortuner":5,
-"Hilux":6,
-"Mehran":7,
-"Prius":8,
-"Sportage":9,
-"Swift":10,
-"Tucson":11,
-"Vitz":12,
-"WagonR":13,
-"Yaris":14
+car_names = {
+    "Alto":0,
+    "City":1,
+    "Civic":2,
+    "Corolla":3,
+    "Cultus":4,
+    "Fortuner":5,
+    "Hilux":6,
+    "Mehran":7,
+    "Prius":8,
+    "Sportage":9,
+    "Swift":10,
+    "Tucson":11,
+    "Vitz":12,
+    "WagonR":13,
+    "Yaris":14
 }
 
-fuel={
-"Petrol":2,
-"Diesel":0,
-"Hybrid":1,
-"CNG":3
+fuel = {
+    "Petrol":2,
+    "Diesel":0,
+    "Hybrid":1,
+    "CNG":3
 }
 
-seller={
-"Dealer":0,
-"Individual":1
+seller = {
+    "Dealer":0,
+    "Individual":1
 }
 
-transmission={
-"Automatic":0,
-"Manual":1
+transmission = {
+    "Automatic":0,
+    "Manual":1
 }
+
+# -------------------------------------------------
+# Header
+# -------------------------------------------------
 
 st.markdown("""
 <div class='top'>
 <h1>🚗 AutoVal</h1>
 <p>Price Intelligence Engine</p>
 </div>
-""",unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-left,right=st.columns([1,1])
+left, right = st.columns([1,1])
+
+# =====================================================
+# LEFT PANEL
+# =====================================================
 
 with left:
 
-    st.markdown("<div class='card'>",unsafe_allow_html=True)
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
 
     st.subheader("Vehicle Parameters")
 
-    car=st.selectbox("Car Name",list(car_names.keys()))
+    car = st.selectbox("Car Name", list(car_names.keys()))
 
-    year=st.slider("Manufacturing Year",2010,2024,2020)
+    year = st.slider(
+        "Manufacturing Year",
+        2010,
+        2024,
+        2020
+    )
 
-    present_price=st.number_input(
+    present_price = st.number_input(
         "Present Price (Lakh)",
         min_value=1.0
     )
 
-    kms=st.slider(
+    kms = st.slider(
         "Kilometers Driven",
         0,
         200000,
         80000
     )
 
-    fuel_type=st.radio(
+    fuel_type = st.radio(
         "Fuel Type",
         list(fuel.keys()),
         horizontal=True
     )
 
-    gear=st.radio(
+    gear = st.radio(
         "Transmission",
         list(transmission.keys()),
         horizontal=True
     )
 
-    seller_type=st.selectbox(
+    seller_type = st.selectbox(
         "Seller Type",
         list(seller.keys())
     )
 
-    owner=st.radio(
+    owner = st.radio(
         "Previous Owners",
         [0,1,2,3],
         horizontal=True
     )
 
-    predict=st.button(
+    predict = st.button(
         "Predict Fair Value",
         use_container_width=True
     )
 
-    st.markdown("</div>",unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# =====================================================
+# RIGHT PANEL
+# =====================================================
 
 with right:
 
-    st.markdown("<div class='card'>",unsafe_allow_html=True)
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+
+    st.info(f"🤖 Prediction using **{algorithm}**")
 
     st.subheader("Estimated Selling Price")
 
     if predict:
 
-        sample=pd.DataFrame({
+        sample = pd.DataFrame({
 
             "Car_Name":[car_names[car]],
             "Year":[year],
@@ -142,30 +194,34 @@ with right:
 
         })
 
-        prediction=model.predict(sample)[0]
+        prediction = model.predict(sample)[0]
 
         st.markdown(f"""
         <div class='price'>
-        ₹ {prediction:.2f} Lakh
+            RS {prediction:.2f} Lakh
         </div>
-        """,unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         st.progress(84)
 
         st.markdown("### Decision Flow")
 
+        st.success(f"Algorithm : {algorithm}")
+
         st.info(f"✔ Year : {year}")
 
         st.info(f"✔ {kms:,} km Driven")
 
-        st.info(f"✔ {fuel_type} • {gear}")
+        st.info(f"✔ Fuel : {fuel_type}")
 
-        st.info(f"✔ Owner : {owner}")
+        st.info(f"✔ Transmission : {gear}")
+
+        st.info(f"✔ Seller : {seller_type}")
+
+        st.info(f"✔ Previous Owner : {owner}")
 
     else:
 
-        st.markdown("<br><br>",unsafe_allow_html=True)
-
         st.write("Prediction will appear here.")
 
-    st.markdown("</div>",unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
